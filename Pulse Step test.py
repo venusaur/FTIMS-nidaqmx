@@ -29,13 +29,12 @@ endfreq = endfreq + freqstep   #Corrects for numpy arange's inability to iterate
 samprate = (numpts*startfreq)*averages   #Calculates the sampling rate based on averges, startfreq, and numpts
 numptstot = numpts*averages             #Calculates how many points to take after trigger
 
-data = np.empty([numptstot,(endfreq-startfreq)])   
+data = np.empty([numptstot,int((endfreq-startfreq))])
+
 names = ['Frequency %d' % (startfreq)]
 
 for x in np.arange (1, ((endfreq-startfreq)), freqstep):
     names.append("Frequency %d" % (x+startfreq))
-
-data.reset_index(drop=True, inplace=True)
 data = pd.DataFrame(data, columns = names)  #Initializes DataFrame for collecting data. DataFrame at this point is arranged with 1 column per frequency to be stepped.
 
 #--------------------------------------#
