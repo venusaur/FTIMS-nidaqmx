@@ -87,4 +87,30 @@ start_freq_label.pack()
 start_freq_entry = tk.Entry(window)
 start_freq_entry.pack()
 
-end_freq_label
+end_freq_label = tk.Label(window, text="End Frequency:")
+end_freq_label.pack()
+end_freq_entry = tk.Entry(window)
+end_freq_entry.pack()
+
+freq_step_label = tk.Label(window, text="Frequency Step:")
+freq_step_label.pack()
+freq_step_entry = tk.Entry(window)
+freq_step_entry.pack()
+
+averages_label = tk.Label(window, text="Averages:")
+averages_label.pack()
+averages_entry = tk.Entry(window)
+averages_entry.pack()
+
+numpts_label = tk.Label(window, text="Number of Data Points:")
+numpts_label.pack()
+numpts_entry = tk.Entry(window)
+numpts_entry.pack()
+
+# Button to start data acquisition
+start_button = tk.Button(window, text="Start Acquisition", command=start_acquisition)
+start_button.pack()
+
+# Run the GUI event loop
+window.mainloop()
+
