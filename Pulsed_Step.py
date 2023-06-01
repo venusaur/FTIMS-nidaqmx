@@ -16,7 +16,7 @@ from tkinter.filedialog import asksaveasfile
                 #User inputs#
 #--------------------------------------#
 startfreq = 5   #Starting Frequency
-endfreq = 1000            #Ending Frequency
+endfreq = 50            #Ending Frequency
 freqstep = 5    #Steps in frequency between scans
 
 averages = 5    #Number of averages at each frequency step - SOFTWARE WILL USE THIS VALUE TO CALCULATE TIME REQUIRED AT LOWEST FREQUENCY USE THE TRIGGER TO AVERAGE THIS SAME AMOUNT OF TIME AT EACH STEP
@@ -102,20 +102,14 @@ output = pd.concat([output, avg_df], axis=1)
 
 #print(output)      #Uncomment to display data in table format
 
-#fig = plt.plot(output, output['Frequency'], output["Average Signal"]) #Plots data using default settings
-#plt.show()  #Displays data
+fig = plt.plot(output, output['Frequency'], output["Average Signal"]) #Plots data using default settings
+plt.show()  #Displays data
 
 
 #--------------------------------------#
         #Fourier Transform#
 #--------------------------------------#
-# Replace NaN values with zeros
-output['Average Signal'] = np.nan_to_num(output['Average Signal'])
-
-# Apply the Fourier transform
-fft = np.fft.fft(output['Average Signal'])
-
-#fft = np.fft.fft(output["Average Signal"])
+fft = np.fft.fft(output["Average Signal"])
 
 #print(fft)
 t=np.arange(np.shape(fft)[0])
