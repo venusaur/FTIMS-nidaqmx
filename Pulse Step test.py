@@ -16,7 +16,7 @@ from tkinter.filedialog import asksaveasfile
                 #User inputs#
 #--------------------------------------#
 startfreq = 5   #Starting Frequency
-endfreq = 100            #Ending Frequency
+endfreq = 1000            #Ending Frequency
 freqstep = 5    #Steps in frequency between scans
 
 averages = 5    #Number of averages at each frequency step - SOFTWARE WILL USE THIS VALUE TO CALCULATE TIME REQUIRED AT LOWEST FREQUENCY USE THE TRIGGER TO AVERAGE THIS SAME AMOUNT OF TIME AT EACH STEP
@@ -29,13 +29,17 @@ endfreq = endfreq + freqstep   #Corrects for numpy arange's inability to iterate
 samprate = (numpts*startfreq)*averages   #Calculates the sampling rate based on averges, startfreq, and numpts
 numptstot = numpts*averages             #Calculates how many points to take after trigger
 
-data = np.empty([numptstot,int((endfreq-startfreq))])
 
-names = ['Frequency %d' % (startfreq)]
+numcols = int((endfreq-startfreq)/freqstep + 1)
+data = np.empty([numptstot, numcols])
+#data = np.empty([numptstot,int((endfreq-startfreq)) + 1])   
+#names = ['Frequency %d' % (startfreq)]
+#for x in np.arange (1, ((endfreq-startfreq)), freqstep):
+#    names.append("Frequency %d" % (x+startfreq))
 
-for x in np.arange (1, ((endfreq-startfreq)), freqstep):
-    names.append("Frequency %d" % (x+startfreq))
-data = pd.DataFrame(data, columns = names)  #Initializes DataFrame for collecting data. DataFrame at this point is arranged with 1 column per frequency to be stepped.
+names = ['Frequency %d' % f for f in np.arange(startfreq, endfreq, freqstep)]
+names.append('Frequency %d' % endfreq)
+data = pd.DataFrame(data, columns = names[:numcols])  #Initializes DataFrame for collecting data. DataFrame at this point is arranged with 1 column per frequency to be stepped.
 
 #--------------------------------------#
         #DAQmx Initialization#
@@ -57,10 +61,14 @@ AI1.triggers.start_trigger.cfg_dig_edge_start_trig("PFI12") #Sets triggering to 
 #--------------------------------------#
 starttime = datetime.datetime.now()
 print(starttime)
-for x in np.arange (startfreq, endfreq, freqstep):  #Iterates over each frequency to collect, collecting numptstot at each step after triggering
+
+data = [[] for _ in range(numcols)]
+
+for i, x in enumerate (np.arange(startfreq, endfreq, freqstep)):  #Iterates over each frequency to collect, collecting numptstot at each step after triggering
     cw.write_one_sample_pulse_frequency(frequency=x, duty_cycle=0.5)
     print(x)
-    data['Frequency %d' %(x)] = AI1.read(number_of_samples_per_channel = numptstot)
+    data[i] = np.ravel(AI1.read(number_of_samples_per_channel = numptstot)).tolist()
+    #data[:, i] = np.ravel(AI1.read(number_of_samples_per_channel = numptstot))
 endtime = datetime.datetime.now()
 print(endtime)
 
@@ -80,15 +88,17 @@ AI1.close()
 #--------------------------------------#
 
 avg = []        #initializes empty array to store average values in.
-for column in data:     #iterates over each column in the data dataframe to find average
+numcols = len(data)
+for i in range(numcols):   #iterates over each column in the data dataframe to find average
     #print(data[column].values)
-    avg.append(data[column].mean())
+    avg.append(np.mean(data[i]))
     #print(avg)
 
 #print(avg)     #uncomment to display average array for debugging
 
 output = pd.DataFrame(np.arange(startfreq, endfreq, freqstep), columns = ['Frequency']) #Creates new dataframe for the final output, populates with the frequencies tested
-output['Average Signal'] = avg   #Adds average to output Dataframe
+avg_df = pd.DataFrame({'Average Signal': avg}, columns=['Average Signal'])
+output = pd.concat([output, avg_df], axis=1)
 
 #print(output)      #Uncomment to display data in table format
 
