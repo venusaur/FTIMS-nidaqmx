@@ -109,7 +109,13 @@ output = pd.concat([output, avg_df], axis=1)
 #--------------------------------------#
         #Fourier Transform#
 #--------------------------------------#
-fft = np.fft.fft(output["Average Signal"])
+# Replace NaN values with zeros
+output['Average Signal'] = np.nan_to_num(output['Average Signal'])
+
+# Apply the Fourier transform
+fft = np.fft.fft(output['Average Signal'])
+
+#fft = np.fft.fft(output["Average Signal"])
 
 #print(fft)
 t=np.arange(np.shape(fft)[0])
@@ -127,7 +133,16 @@ Fourier['fft']=fft.real
 Fourier['fft_imag']=fft.imag
 
 print(Fourier)
-Fourier.to_csv((asksaveasfile(initialfile = 'Untitled.csv', defaultextension='.csv', filetypes=[("CSV Files","*.csv"),("All Files", "*.*")])), sep=',',index=False, lineterminator='\n')   #Calls a file dialog box to save the data
+#Fourier.to_csv((asksaveasfile(initialfile = 'Untitled.csv', defaultextension='.csv', filetypes=[("CSV Files","*.csv"),("All Files", "*.*")])), sep=',',index=False, lineterminator='\n')   #Calls a file dialog box to save the data
+
+# File Output
+filename = asksaveasfile(initialfile='Untitled.csv', defaultextension='.csv', filetypes=[("CSV Files", "*.csv"), ("All Files", "*.*")])
+if filename:
+    filename = filename.name
+    Fourier.to_csv(filename, sep=',', index=False, line_terminator='\n')
+    print("Data saved to:", filename)
+
+
 
 fig1 = plt.plot(freq, fft.real, freq, fft.imag)
 plt.show()
