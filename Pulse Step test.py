@@ -16,8 +16,8 @@ from tkinter.filedialog import asksaveasfile
                 #User inputs#
 #--------------------------------------#
 startfreq = 5   #Starting Frequency
-endfreq = 3000            #Ending Frequency
-freqstep = 1    #Steps in frequency between scans
+endfreq = 100            #Ending Frequency
+freqstep = 5    #Steps in frequency between scans
 
 averages = 5    #Number of averages at each frequency step - SOFTWARE WILL USE THIS VALUE TO CALCULATE TIME REQUIRED AT LOWEST FREQUENCY USE THE TRIGGER TO AVERAGE THIS SAME AMOUNT OF TIME AT EACH STEP
 numpts = 100    #Number of data points to take at each frequency setp
@@ -35,6 +35,7 @@ names = ['Frequency %d' % (startfreq)]
 for x in np.arange (1, ((endfreq-startfreq)), freqstep):
     names.append("Frequency %d" % (x+startfreq))
 
+data.reset_index(drop=True, inplace=True)
 data = pd.DataFrame(data, columns = names)  #Initializes DataFrame for collecting data. DataFrame at this point is arranged with 1 column per frequency to be stepped.
 
 #--------------------------------------#
@@ -116,8 +117,8 @@ Fourier['Freq']=freq
 Fourier['fft']=fft.real
 Fourier['fft_imag']=fft.imag
 
-#print(Fourier)
-Fourier.to_csv((asksaveasfile(initialfile = 'Untitled.csv', defaultextension='.csv', filetypes=[("CSV Files","*.csv"),("All Files", "*.*")])), sep=',',index=False, line_terminator='\n')   #Calls a file dialog box to save the data
+print(Fourier)
+Fourier.to_csv((asksaveasfile(initialfile = 'Untitled.csv', defaultextension='.csv', filetypes=[("CSV Files","*.csv"),("All Files", "*.*")])), sep=',',index=False, lineterminator='\n')   #Calls a file dialog box to save the data
 
-#fig1 = plt.plot(freq, fft.real, freq, fft.imag)
-#plt.show()
+fig1 = plt.plot(freq, fft.real, freq, fft.imag)
+plt.show()
